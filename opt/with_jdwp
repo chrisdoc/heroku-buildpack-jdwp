@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-debug_port=${JDWP_PORT:-8998}
+debug_port=${DEBUG_PORT:-1099}
 
 if [ -z "$NGROK_API_TOKEN" ]; then
   echo "You must set the NGROK_API_TOKEN config var to create a TCP tunnel!"
@@ -13,8 +13,6 @@ echo "Starting ngrok..."
 eval "$ngrok_cmd &"
 ngrok_pid=$!
 
-jdwpOpts=${JDWP_OPTS:-"server=y,suspend=n"}
-
-export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -Xdebug -Xrunjdwp:transport=dt_socket,address=$debug_port,${jdwpOpts}"
+export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -Xverify:none -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$debug_port -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
 eval "$@"
